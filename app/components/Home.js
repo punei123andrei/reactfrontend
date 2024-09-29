@@ -2,8 +2,8 @@ import React, { useEffect, useContext } from "react"
 import Page from "./Page"
 import StateContext from "../StateContext"
 import { useImmer } from "use-immer"
-import Axios from "axios"
 import LoadingDotsIcon from "./LoadingDotsIcon"
+import Axios from "axios"
 import { Link } from "react-router-dom"
 import Post from "./Post"
 
@@ -19,7 +19,7 @@ function Home() {
 
     async function fetchData() {
       try {
-        const response = await Axios.post('/getHomeFeed', { token: appState.user.token }, { cancelToken: ourRequest.token })
+        const response = await Axios.post("/getHomeFeed", { token: appState.user.token }, { cancelToken: ourRequest.token })
         setState(draft => {
           draft.isLoading = false
           draft.feed = response.data
@@ -42,10 +42,10 @@ function Home() {
     <Page title="Your Feed">
       {state.feed.length > 0 && (
         <>
-          <h2 className="text-center mb-4">The Latest from those You follow</h2>
+          <h2 className="text-center mb-4">The Latest From Those You Follow</h2>
           <div className="list-group">
             {state.feed.map(post => {
-            return <Post  post={post} key={post._id}/>
+              return <Post post={post} key={post._id} />
             })}
           </div>
         </>

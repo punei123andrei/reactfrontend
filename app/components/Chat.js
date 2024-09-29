@@ -2,39 +2,43 @@ import React, { useEffect, useContext, useRef } from "react"
 import StateContext from "../StateContext"
 import DispatchContext from "../DispatchContext"
 import { useImmer } from "use-immer"
-import io from "socket.io-client"
 import { Link } from "react-router-dom"
-const socket = io("http://localhost:8080")
+import io from "socket.io-client"
 
 function Chat() {
+  const socket = useRef(null)
   const chatField = useRef(null)
   const chatLog = useRef(null)
   const appState = useContext(StateContext)
   const appDispatch = useContext(DispatchContext)
   const [state, setState] = useImmer({
     fieldValue: "",
-    chatMessages: [], 
+    chatMessages: [],
   })
 
   useEffect(() => {
     if (appState.isChatOpen) {
       chatField.current.focus()
-      appDispatch({type: "clearUnreadChatCounts"})
+      appDispatch({ type: "clearUnreadChatCount" })
     }
   }, [appState.isChatOpen])
 
   useEffect(() => {
-    socket.on("chatFromServer", (message) => {
+    socket.current = io(process.env.BACKENDURL || "https://reactbackend-asc1.onrender.com")
+
+    socket.current.on("chatFromServer", (message) => {
       setState((draft) => {
-        draft.chatMessages.push(message) 
+        draft.chatMessages.push(message)
       })
     })
+
+    return () => socket.current.disconnect()
   }, [])
 
   useEffect(() => {
     chatLog.current.scrollTop = chatLog.current.scrollHeight
-    if(state.chatMessages.length && !appState.isChatOpen) {
-      appDispatch({type: "incrementUnreadChatCount"})
+    if (state.chatMessages.length && !appState.isChatOpen) {
+      appDispatch({ type: "incrementUnreadChatCount" })
     }
   }, [state.chatMessages])
 
@@ -48,11 +52,11 @@ function Chat() {
   function handleSubmit(e) {
     e.preventDefault()
     // Send message to chat server
-    socket.emit("chatFromBrowser", { message: state.fieldValue, token: appState.user.token })
+    socket.current.emit("chatFromBrowser", { message: state.fieldValue, token: appState.user.token })
 
     setState((draft) => {
       // Add message to state collection of messages
-      draft.chatMessages.push({ message: draft.fieldValue, username: appState.user.username, avatar: appState.user.avatar }) // Corrected to "chatMessages"
+      draft.chatMessages.push({ message: draft.fieldValue, username: appState.user.username, avatar: appState.user.avatar })
       draft.fieldValue = ""
     })
   }
@@ -65,28 +69,28 @@ function Chat() {
           <i className="fas fa-times-circle"></i>
         </span>
       </div>
-      <div ref={chatLog} id="chat" className="chat-log">
+      <div id="chat" className="chat-log" ref={chatLog}>
         {state.chatMessages.map((message, index) => {
-          if (message.username === appState.user.username) {
+          if (message.username == appState.user.username) {
             return (
-              <div className="chat-self" key={index}>
+              <div key={index} className="chat-self">
                 <div className="chat-message">
                   <div className="chat-message-inner">{message.message}</div>
                 </div>
-                <img className="chat-avatar avatar-tiny" src={message.avatar} alt="avatar" />
+                <img className="chat-avatar avatar-tiny" src={message.avatar} />
               </div>
             )
           }
 
           return (
-            <div className="chat-other" key={index}>
+            <div key={index} className="chat-other">
               <Link to={`/profile/${message.username}`}>
-                <img className="avatar-tiny" src={message.avatar} alt="avatar" />
+                <img className="avatar-tiny" src={message.avatar} />
               </Link>
               <div className="chat-message">
                 <div className="chat-message-inner">
                   <Link to={`/profile/${message.username}`}>
-                    <strong>{message.username}: {" "}</strong>
+                    <strong>{message.username}: </strong>
                   </Link>
                   {message.message}
                 </div>

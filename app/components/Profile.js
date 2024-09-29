@@ -1,5 +1,4 @@
 import React, { useEffect, useContext } from "react"
-import { useImmer } from "use-immer"
 import Page from "./Page"
 import { useParams, NavLink, Routes, Route } from "react-router-dom"
 import Axios from "axios"
@@ -7,7 +6,7 @@ import StateContext from "../StateContext"
 import ProfilePosts from "./ProfilePosts"
 import ProfileFollowers from "./ProfileFollowers"
 import ProfileFollowing from "./ProfileFollowing"
-
+import { useImmer } from "use-immer"
 
 function Profile() {
   const { username } = useParams()
@@ -48,6 +47,7 @@ function Profile() {
       setState(draft => {
         draft.followActionLoading = true
       })
+
       const ourRequest = Axios.CancelToken.source()
 
       async function fetchData() {
@@ -74,6 +74,7 @@ function Profile() {
       setState(draft => {
         draft.followActionLoading = true
       })
+
       const ourRequest = Axios.CancelToken.source()
 
       async function fetchData() {
@@ -100,6 +101,7 @@ function Profile() {
       draft.startFollowingRequestCount++
     })
   }
+
   function stopFollowing() {
     setState(draft => {
       draft.stopFollowingRequestCount++
@@ -110,13 +112,13 @@ function Profile() {
     <Page title="Profile Screen">
       <h2>
         <img className="avatar-small" src={state.profileData.profileAvatar} /> {state.profileData.profileUsername}
-        {appState.loggedIn && !state.profileData.isFollowing && appState.user.username != state.profileData.profileUsername && state.profileData.profileUsername != '...' && (
-          <button onClick={startFollowing} disable={state.followActionLoading} className="btn btn-primary btn-sm ml-2">
+        {appState.loggedIn && !state.profileData.isFollowing && appState.user.username != state.profileData.profileUsername && state.profileData.profileUsername != "..." && (
+          <button onClick={startFollowing} disabled={state.followActionLoading} className="btn btn-primary btn-sm ml-2">
             Follow <i className="fas fa-user-plus"></i>
           </button>
         )}
-        {appState.loggedIn && state.profileData.isFollowing && appState.user.username != state.profileData.profileUsername && state.profileData.profileUsername != '...' && (
-          <button onClick={stopFollowing} disable={state.followActionLoading} className="btn btn-danger btn-sm ml-2">
+        {appState.loggedIn && state.profileData.isFollowing && appState.user.username != state.profileData.profileUsername && state.profileData.profileUsername != "..." && (
+          <button onClick={stopFollowing} disabled={state.followActionLoading} className="btn btn-danger btn-sm ml-2">
             Stop Following <i className="fas fa-user-times"></i>
           </button>
         )}
@@ -134,11 +136,11 @@ function Profile() {
         </NavLink>
       </div>
 
-     <Routes>
-      <Route path="" element={ <ProfilePosts />}/>
-      <Route path="followers" element={ <ProfileFollowers />}/>
-      <Route path="following" element={ <ProfileFollowing />}/>
-     </Routes>
+      <Routes>
+        <Route path="" element={<ProfilePosts />} />
+        <Route path="followers" element={<ProfileFollowers />} />
+        <Route path="following" element={<ProfileFollowing />} />
+      </Routes>
     </Page>
   )
 }
